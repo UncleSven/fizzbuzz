@@ -13,6 +13,11 @@ use Illuminate\Support\ServiceProvider;
 final class AppServiceProvider extends ServiceProvider
 {
     /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void {}
+
+    /**
      * Register any application services.
      */
     public function register(): void
@@ -25,12 +30,5 @@ final class AppServiceProvider extends ServiceProvider
         });
 
         $this->app->singleton(abstract: TypeCaster::class, concrete: TypeCaster::class);
-    }
-
-    /**
-     * Bootstrap any application services.
-     */
-    public function boot(): void
-    {
     }
 }

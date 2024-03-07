@@ -12,21 +12,6 @@ final class TypeCasterTest extends UnitTestCase
 {
     private TypeCaster $typeCaster;
 
-    protected function setUp(): void
-    {
-        $this->typeCaster = new TypeCaster();
-
-        parent::setUp();
-    }
-
-    /**
-     * @dataProvider provideAsIntegerData
-     */
-    public function testAsInteger(mixed $value, int $expected): void
-    {
-        $this::assertSame(expected: $expected, actual: $this->typeCaster->asInteger(value: $value, default: 0));
-    }
-
     /**
      * @return iterable<array<int, mixed>>
      */
@@ -50,5 +35,20 @@ final class TypeCasterTest extends UnitTestCase
         yield 'integer 47' => [47, 47];
         yield 'float -147.87' => [-147.87, -147];
         yield 'float -7.87' => [7.87, 7];
+    }
+
+    /**
+     * @dataProvider provideAsIntegerData
+     */
+    public function testAsInteger(mixed $value, int $expected): void
+    {
+        $this::assertSame(expected: $expected, actual: $this->typeCaster->asInteger(value: $value, default: 0));
+    }
+
+    protected function setUp(): void
+    {
+        $this->typeCaster = new TypeCaster();
+
+        parent::setUp();
     }
 }

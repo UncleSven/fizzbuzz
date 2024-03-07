@@ -19,16 +19,67 @@ final class DefaultStrategyTest extends UnitTestCase
 
     private FizzBuzzStrategy $strategy;
 
-    /**
-     * @throws Exception
-     */
-    protected function setUp(): void
+    public function testLoopWithNoMatchingConstraints(): void
     {
-        $this->constraint1 = $this::createMock(FizzBuzzConstraint::class);
-        $this->constraint2 = $this::createMock(FizzBuzzConstraint::class);
-        $this->strategy = new DefaultStrategy($this->constraint1, $this->constraint2);
+        $this->constraint1
+            ->expects($this::exactly(3))
+            ->method('evaluate')
+            ->with(
+                $this::callback(
+                    static function (int $number): bool {
+                        static $i = 0;
+                        $i++;
 
-        parent::setUp();
+                        return $number === $i;
+                    },
+                ),
+            )
+            ->willReturn(null);
+
+        $this->constraint2
+            ->expects($this::exactly(3))
+            ->method('evaluate')
+            ->with(
+                $this::callback(
+                    static function (int $number): bool {
+                        static $i = 0;
+                        $i++;
+
+                        return $number === $i;
+                    },
+                ),
+            )
+            ->willReturn(null);
+
+        $this::assertSame(expected: ['1', '2', '3'], actual: $this->strategy->evaluate(min: 1, max: 3));
+    }
+
+    public function testLoopWithTwoMatchingConstraints(): void
+    {
+        $this->constraint1
+            ->expects($this::exactly(4))
+            ->method('evaluate')
+            ->willReturn(null, null, 'foo', 'foo');
+
+        $this->constraint2
+            ->expects($this::exactly(2))
+            ->method('evaluate')
+            ->willReturn('bar', null);
+
+        $this::assertSame(expected: ['bar', '2', 'foo', 'foo'], actual: $this->strategy->evaluate(min: 1, max: 4));
+    }
+
+    public function testNoLoop(): void
+    {
+        $this->constraint1
+            ->expects($this::never())
+            ->method('evaluate');
+
+        $this->constraint2
+            ->expects($this::never())
+            ->method('evaluate');
+
+        $this::assertSame(expected: [], actual: $this->strategy->evaluate(min: -1, max: -2));
     }
 
     public function testSingleLoopWithFirstConstraintMatch(): void
@@ -63,64 +114,15 @@ final class DefaultStrategyTest extends UnitTestCase
         $this::assertSame(expected: ['foo'], actual: $this->strategy->evaluate(min: 7, max: 7));
     }
 
-    public function testNoLoop(): void
+    /**
+     * @throws Exception
+     */
+    protected function setUp(): void
     {
-        $this->constraint1
-            ->expects($this::never())
-            ->method('evaluate');
+        $this->constraint1 = $this::createMock(FizzBuzzConstraint::class);
+        $this->constraint2 = $this::createMock(FizzBuzzConstraint::class);
+        $this->strategy    = new DefaultStrategy($this->constraint1, $this->constraint2);
 
-        $this->constraint2
-            ->expects($this::never())
-            ->method('evaluate');
-
-        $this::assertSame(expected: [], actual: $this->strategy->evaluate(min: -1, max: -2));
-    }
-
-    public function testLoopWithNoMatchingConstraints(): void
-    {
-        $this->constraint1
-            ->expects($this::exactly(3))
-            ->method('evaluate')
-            ->with(
-                $this::callback(
-                    static function (int $number): bool {
-                        static $i = 0;
-                        $i++;
-
-                        return $number === $i;
-                    }
-                ))
-            ->willReturn(null);
-
-        $this->constraint2
-            ->expects($this::exactly(3))
-            ->method('evaluate')
-            ->with(
-                $this::callback(
-                    static function (int $number): bool {
-                        static $i = 0;
-                        $i++;
-
-                        return $number === $i;
-                    }
-                ))
-            ->willReturn(null);
-
-        $this::assertSame(expected: ['1', '2', '3'], actual: $this->strategy->evaluate(min: 1, max: 3));
-    }
-
-    public function testLoopWithTwoMatchingConstraints(): void
-    {
-        $this->constraint1
-            ->expects($this::exactly(4))
-            ->method('evaluate')
-            ->willReturn(null, null, 'foo', 'foo');
-
-        $this->constraint2
-            ->expects($this::exactly(2))
-            ->method('evaluate')
-            ->willReturn('bar', null);
-
-        $this::assertSame(expected: ['bar', '2', 'foo', 'foo'], actual: $this->strategy->evaluate(min: 1, max: 4));
+        parent::setUp();
     }
 }

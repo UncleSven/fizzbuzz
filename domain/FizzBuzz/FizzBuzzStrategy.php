@@ -7,8 +7,8 @@ namespace Domain\FizzBuzz;
 interface FizzBuzzStrategy
 {
     /**
-     * @param  int  $min
-     * @param  int  $max
+     * @param int $min
+     * @param int $max
      *
      * @return string[]
      */

@@ -135,7 +135,7 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug($appName, '_') . '_session'
+        Str::slug($appName, '_') . '_session',
     ),
 
     /*

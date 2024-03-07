@@ -4,11 +4,14 @@ declare(strict_types = 1);
 
 use Laravel\Sanctum\Sanctum;
 
-$sanctumStatefulDomains = env('SANCTUM_STATEFUL_DOMAINS', sprintf(
-    '%s%s',
-    'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
-    Sanctum::currentApplicationUrlWithPort()
-));
+$sanctumStatefulDomains = env(
+    'SANCTUM_STATEFUL_DOMAINS',
+    sprintf(
+        '%s%s',
+        'localhost,localhost:3000,127.0.0.1,127.0.0.1:8000,::1',
+        Sanctum::currentApplicationUrlWithPort(),
+    ),
+);
 if (!is_string($sanctumStatefulDomains)) {
     throw new RuntimeException('SANCTUM_STATEFUL_DOMAINS is not a string');
 }

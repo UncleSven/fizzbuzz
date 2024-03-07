@@ -14,30 +14,6 @@ final class DefaultStrategyTest extends IntegrationTestCase
     private FizzBuzzStrategy $strategy;
 
     /**
-     * @throws ContainerExceptionInterface
-     * @throws NotFoundExceptionInterface
-     */
-    protected function setUp(): void
-    {
-        $app = $this->createApplication();
-
-        /** @phpstan-ignore-next-line */
-        $this->strategy = $app->get(FizzBuzzStrategy::class);
-
-        parent::setUp();
-    }
-
-    /**
-     * @param  array<int, int|string>  $expected
-     *
-     * @dataProvider provideEvaluateSingleLoopData
-     */
-    public function testEvaluateSingleLoop(int $minMax, array $expected): void
-    {
-        $this::assertSame(expected: $expected, actual: $this->strategy->evaluate(min: $minMax, max: $minMax));
-    }
-
-    /**
      * @return iterable<array<int, int|array<int, string>>>
      */
     public static function provideEvaluateSingleLoopData(): iterable
@@ -67,5 +43,29 @@ final class DefaultStrategyTest extends IntegrationTestCase
         ];
 
         $this::assertSame(expected: $expected, actual: $this->strategy->evaluate(min: 68, max: 75));
+    }
+
+    /**
+     * @param array<int, int|string> $expected
+     *
+     * @dataProvider provideEvaluateSingleLoopData
+     */
+    public function testEvaluateSingleLoop(int $minMax, array $expected): void
+    {
+        $this::assertSame(expected: $expected, actual: $this->strategy->evaluate(min: $minMax, max: $minMax));
+    }
+
+    /**
+     * @throws ContainerExceptionInterface
+     * @throws NotFoundExceptionInterface
+     */
+    protected function setUp(): void
+    {
+        $app = $this->createApplication();
+
+        /** @phpstan-ignore-next-line */
+        $this->strategy = $app->get(FizzBuzzStrategy::class);
+
+        parent::setUp();
     }
 }

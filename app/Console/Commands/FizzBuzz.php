@@ -10,18 +10,18 @@ use Illuminate\Console\Command;
 final class FizzBuzz extends Command
 {
     /**
-     * The name and signature of the console command.
-     *
-     * @var string
-     */
-    protected $signature = 'app:fizz-buzz';
-
-    /**
      * The console command description.
      *
      * @var string
      */
     protected $description = 'Run the FizzBuzz coding challenge (from 1 to 100)';
+
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'app:fizz-buzz';
 
     /**
      * Execute the console command.

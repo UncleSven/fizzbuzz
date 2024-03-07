@@ -15,10 +15,8 @@ final class FizzBuzzController extends Controller
 {
     public function __construct(
         private readonly FizzBuzzStrategy $fizzBuzzStrategy,
-        private readonly TypeCaster $typeCaster,
-    )
-    {
-    }
+        private readonly TypeCaster       $typeCaster,
+    ) {}
 
     public function show(Request $request): Factory|View
     {

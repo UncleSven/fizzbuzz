@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types = 1);
+
 namespace Tests\Feature;
 
 use Illuminate\Testing\TestResponse;
@@ -7,16 +9,66 @@ use Tests\FeatureTestCase;
 
 final class FizzBuzzControllerTest extends FeatureTestCase
 {
-    public function testShowWithoutParameter(): void
+    /**
+     * @return iterable<array<int, int|string>>
+     */
+    public static function provideMaximumErrors(): iterable
     {
-        $response = $this->get(uri: '/fizzbuzz');
+        yield 'maximum is a string' => ['min', 'The maximum field must be an integer.'];
+        yield 'maximum is an empty string' => ['', 'The maximum field is required when minimum is present.'];
+        yield 'maximum is less than 1' => [0, 'The maximum field must be at least 1.'];
+        yield 'maximum is greater than 100' => [101, 'The maximum field must not be greater than 100.'];
+        yield 'maximum must be greater than minimum' => [39, 'The maximum field must be greater than or equal to 40.'];
+    }
+
+    /**
+     * @return iterable<array<int, int|string>>
+     */
+    public static function provideMinimumErrors(): iterable
+    {
+        yield 'minimum is a string' => ['min', 'The minimum field must be an integer.'];
+        yield 'minimum is an empty string' => ['', 'The minimum field must be an integer.'];
+        yield 'minimum is less than 1' => [0, 'The minimum field must be at least 1.'];
+        yield 'minimum is greater than 100' => [101, 'The minimum field must not be greater than 100.'];
+    }
+
+    public function testErrorWhenNoMaximumIsPresent(): void
+    {
+        $response = $this->get(uri: '/fizzbuzz?minimum=40');
         $response->assertStatus(status: 200);
 
-        $data = $this->getData(response: $response);
+        $errors = $this->getData(response: $response)['errors'];
 
-        $this::assertNull(actual: $data['errors']);
-        $this::assertSame(expected: 1, actual: $data['min']);
-        $this::assertSame(expected: 100, actual: $data['max']);
+        $this::assertNotNull(actual: $errors);
+        $this::assertSame(expected: ['The maximum field is required when minimum is present.'], actual: $errors);
+    }
+
+    /**
+     * @dataProvider provideMaximumErrors
+     */
+    public function testMaximumErrors(int|string $maximum, string $error): void
+    {
+        $response = $this->get(uri: "/fizzbuzz?minimum=40&maximum={$maximum}");
+        $response->assertStatus(status: 200);
+
+        $errors = $this->getData(response: $response)['errors'];
+
+        $this::assertNotNull(actual: $errors);
+        $this::assertSame(expected: [$error], actual: $errors);
+    }
+
+    /**
+     * @dataProvider provideMinimumErrors
+     */
+    public function testMinimumErrors(int|string $minimum, string $error): void
+    {
+        $response = $this->get(uri: "/fizzbuzz?minimum={$minimum}&maximum=1");
+        $response->assertStatus(status: 200);
+
+        $errors = $this->getData(response: $response)['errors'];
+
+        $this::assertNotNull(actual: $errors);
+        $this::assertSame(expected: [$error], actual: $errors);
     }
 
     public function testShowWithParameter(): void
@@ -43,66 +95,16 @@ final class FizzBuzzControllerTest extends FeatureTestCase
         $this::assertSame(expected: $expected, actual: $data['results']);
     }
 
-    /**
-     * @dataProvider provideMinimumErrors
-     */
-    public function testMinimumErrors(int|string $minimum, string $error): void
+    public function testShowWithoutParameter(): void
     {
-        $response = $this->get(uri: "/fizzbuzz?minimum={$minimum}&maximum=1");
+        $response = $this->get(uri: '/fizzbuzz');
         $response->assertStatus(status: 200);
 
-        $errors = $this->getData(response: $response)['errors'];
+        $data = $this->getData(response: $response);
 
-        $this::assertNotNull(actual: $errors);
-        $this::assertSame(expected: [$error], actual: $errors);
-    }
-
-    /**
-     * @return iterable<array<int, int|string>>
-     */
-    public static function provideMinimumErrors(): iterable
-    {
-        yield 'minimum is a string' => ['min', 'The minimum field must be an integer.'];
-        yield 'minimum is an empty string' => ['', 'The minimum field must be an integer.'];
-        yield 'minimum is less than 1' => [0, 'The minimum field must be at least 1.'];
-        yield 'minimum is greater than 100' => [101, 'The minimum field must not be greater than 100.'];
-    }
-
-    /**
-     * @dataProvider provideMaximumErrors
-     */
-    public function testMaximumErrors(int|string $maximum, string $error): void
-    {
-        $response = $this->get(uri: "/fizzbuzz?minimum=40&maximum={$maximum}");
-        $response->assertStatus(status: 200);
-
-        $errors = $this->getData(response: $response)['errors'];
-
-        $this::assertNotNull(actual: $errors);
-        $this::assertSame(expected: [$error], actual: $errors);
-    }
-
-    /**
-     * @return iterable<array<int, int|string>>
-     */
-    public static function provideMaximumErrors(): iterable
-    {
-        yield 'maximum is a string' => ['min', 'The maximum field must be an integer.'];
-        yield 'maximum is an empty string' => ['', 'The maximum field is required when minimum is present.'];
-        yield 'maximum is less than 1' => [0, 'The maximum field must be at least 1.'];
-        yield 'maximum is greater than 100' => [101, 'The maximum field must not be greater than 100.'];
-        yield 'maximum must be greater than minimum' => [39, 'The maximum field must be greater than or equal to 40.'];
-    }
-
-    public function testErrorWhenNoMaximumIsPresent(): void
-    {
-        $response = $this->get(uri: '/fizzbuzz?minimum=40');
-        $response->assertStatus(status: 200);
-
-        $errors = $this->getData(response: $response)['errors'];
-
-        $this::assertNotNull(actual: $errors);
-        $this::assertSame(expected: ['The maximum field is required when minimum is present.'], actual: $errors);
+        $this::assertNull(actual: $data['errors']);
+        $this::assertSame(expected: 1, actual: $data['min']);
+        $this::assertSame(expected: 100, actual: $data['max']);
     }
 
     /**
@@ -111,6 +113,7 @@ final class FizzBuzzControllerTest extends FeatureTestCase
     private function getData(TestResponse $response): array
     {
         /** @phpstan-ignore-next-line */
-        return $response->getOriginalContent()->getData();
+        return $response->getOriginalContent()
+                        ->getData();
     }
 }

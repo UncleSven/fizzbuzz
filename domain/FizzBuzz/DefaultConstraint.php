@@ -11,11 +11,7 @@ final readonly class DefaultConstraint implements FizzBuzzConstraint
      */
     private array $constraints;
 
-    public function __construct(
-        private int $trigger,
-        private string $result,
-        FizzBuzzConstraint ...$constraints,
-    )
+    public function __construct(private int $trigger, private string $result, FizzBuzzConstraint ...$constraints)
     {
         $this->constraints = $constraints;
     }
