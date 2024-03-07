@@ -1,5 +1,10 @@
 <?php
 
+declare(strict_types = 1);
+
+use App\Http\Controllers\FizzBuzzController;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get(uri: '/', action: static function (): Factory|View {
+    return view(view: 'welcome');
 });
+
+Route::get(uri: '/fizzbuzz', action: [FizzBuzzController::class, 'show']);

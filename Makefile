@@ -14,17 +14,25 @@ docker-stop: # Stops running containers without removing them.
 env: # Makes the .env-file with default values.
 	cp .env.example .env
 
-.PHONY: post-setup
-post-setup:
-	docker exec laravel-app php artisan key:generate
-
-.PHONY: pre-setup
-pre-setup:
-	chmod +x .docker/pre-installation.sh && \
-	./.docker/pre-installation.sh
+.PHONY: fizzbuzz
+fizzbuzz:
+	docker exec laravel-app php artisan app:fizz-buzz
 
 .PHONY: setup
-setup: pre-setup docker-start post-setup
+setup:
+	chmod +x .docker/pre-installation.sh && \
+	./.docker/pre-installation.sh && \
+	./vendor/bin/sail up -d && \
+	docker exec laravel-app php artisan key:generate && \
+	./vendor/bin/sail up -d # restart to activate the app_key for feature-tests
+
+.PHONY: static
+static:
+	docker exec -it laravel-app vendor/bin/phpstan analyse
+
+.PHONY: tests
+tests:
+	docker exec laravel-app php artisan test --testsuite=Unit,Integration,Feature
 
 .PHONY: vendor-install
 vendor-install: # Enters laravel-app container and runs composer install

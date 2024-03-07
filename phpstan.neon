@@ -1,0 +1,27 @@
+includes:
+    - vendor/phpstan/phpstan-webmozart-assert/extension.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan/conf/bleedingEdge.neon
+    - vendor/phpstan/phpstan-phpunit/extension.neon
+    - vendor/phpstan/phpstan-phpunit/rules.neon
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    treatPhpDocTypesAsCertain: false
+    reportMaybesInPropertyPhpDocTypes: false # This is disabled so we can narrow down the type `array` on a parent class in the child class.
+    checkInternalClassCaseSensitivity: true
+    checkTooWideReturnTypesInProtectedAndPublicMethods: true
+    checkUninitializedProperties: true
+    checkExplicitMixed: true
+    checkMissingCallableSignature: true
+    level: 9
+    paths:
+        - app
+        - bootstrap
+        - config
+        - database
+        - domain
+        - infrastructure
+        - routes
+        - tests
